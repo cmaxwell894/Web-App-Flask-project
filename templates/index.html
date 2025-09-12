@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Grouper Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- Top banner/logo -->
+  <div class="bg-white shadow-md flex items-center p-4">
+    <img src="{{ url_for('static', filename='TFP.jpg') }}" alt="Team Grouper Logo"
+         class="h-16 object-contain mr-4">
+    <h1 class="text-2xl font-bold text-gray-800">Team Grouper Tool</h1>
+  </div>
+
+  <!-- Centered form container -->
+  <div class="flex items-center justify-center mt-12">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center">
+      <form method="post" enctype="multipart/form-data" class="space-y-6">
+        <input type="file" name="file" accept=".xlsx,.xls"
+               class="block w-full text-gray-700 border border-gray-300 rounded-lg cursor-pointer
+                      file:border-0 file:bg-blue-500 file:text-white file:font-semibold
+                      file:px-4 file:py-2 hover:file:bg-blue-600"/>
+
+        <button type="submit"
+                class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg
+                       hover:bg-blue-600 transition-colors">
+          Process Excel
+        </button>
+
+        <p class="text-sm text-gray-500">
+          Upload an Excel file with team names to group them automatically.
+        </p>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
