@@ -62,9 +62,10 @@ def get_base_club_name(team_name, age_pattern, youth_keywords, all_keywords, clu
 # Normalize club names for merging (internal only)
 # =========================
 def normalize_club_name_for_merge(club_name):
-    club_name = club_name.upper()
-    club_name = club_name.replace('.', '')
+    # Only normalize main club, keep suffixes untouched
+    club_name = club_name.upper().replace('.', '')
     club_name = re.sub(r'\s+', ' ', club_name).strip()
+    # Remove common abbreviations, but avoid replacing parts of suffixes
     club_name = re.sub(r'\b(JF?C?|F C|F C)\b', 'FC', club_name)
     return club_name
 
@@ -82,8 +83,7 @@ def merge_youth_subteams(grouped_teams):
             club = key
             category = ""
 
-        # Extract base club name before normalizing
-        # Only normalize the "main" club part, not any junior/youth suffixes
+        # Split club into main name + optional youth/junior suffix
         base_club_match = re.match(r'^(.+?)(?:\s+(Junior|Youth|U\d+).*)?$', club, re.IGNORECASE)
         if base_club_match:
             base_club = normalize_club_name_for_merge(base_club_match.group(1))
