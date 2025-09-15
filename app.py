@@ -11,8 +11,7 @@ app = Flask(__name__)
 # Load keywords
 # =========================
 
-keywords_file = r"C:\Users\ConnorMaxwell\Documents\Tests\TestData\keywords.json"
-with open(keywords_file, "r") as f:
+with open("keywords.json", "r") as f:
     keywords_data = json.load(f)
 
 youth_keywords = keywords_data["youth_keywords"]
