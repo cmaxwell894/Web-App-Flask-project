@@ -82,18 +82,26 @@ def merge_youth_subteams(grouped_teams):
             club = key
             category = ""
 
-        # Normalize base club once
-        base_club = normalize_club_name_for_merge(club)
+        # Extract base club name before normalizing
+        # Only normalize the "main" club part, not any junior/youth suffixes
+        base_club_match = re.match(r'^(.+?)(?:\s+(Junior|Youth|U\d+).*)?$', club, re.IGNORECASE)
+        if base_club_match:
+            base_club = normalize_club_name_for_merge(base_club_match.group(1))
+            suffix = base_club_match.group(2)
+            if suffix:
+                merged_name = f"{base_club} {suffix}"
+            else:
+                merged_name = base_club
+        else:
+            merged_name = normalize_club_name_for_merge(club)
 
-        # Rebuild merged key
-        merged_key = f"{base_club} ({category})" if category else base_club
-
-        # Append original teams
+        merged_key = f"{merged_name} ({category})" if category else merged_name
         merged_grouped.setdefault(merged_key, []).extend(teams)
 
     # Sort teams inside each club
     merged_grouped = {k: sorted(v) for k, v in merged_grouped.items()}
     return merged_grouped
+
 
 # =========================
 # Process file
