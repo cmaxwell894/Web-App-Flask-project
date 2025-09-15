@@ -64,7 +64,6 @@ def get_base_club_name(team_name, age_pattern, youth_keywords, all_keywords, clu
 def normalize_club_name_for_merge(club_name):
     club_name = club_name.upper()
     club_name = club_name.replace('.', '')
-    club_name = re.sub(r'\(.*?\)', '', club_name)
     club_name = re.sub(r'\s+', ' ', club_name).strip()
     club_name = re.sub(r'\b(JF?C?|F C|F C)\b', 'FC', club_name)
     return club_name
@@ -75,18 +74,24 @@ def normalize_club_name_for_merge(club_name):
 def merge_youth_subteams(grouped_teams):
     merged_grouped = {}
     for key, teams in grouped_teams.items():
-        club, category = key.rsplit('(', 1)
-        category = category.rstrip(')').strip()
-        club = club.strip()
-
-        if category.lower() == "youth":
-            base_club = normalize_club_name_for_merge(club)
+        if '(' in key:
+            club, category = key.rsplit('(', 1)
+            category = category.rstrip(')').strip()
+            club = club.strip()
         else:
-            base_club = club
+            club = key
+            category = ""
 
-        merged_key = f"{base_club} ({category})"
+        # Normalize base club once
+        base_club = normalize_club_name_for_merge(club)
+
+        # Rebuild merged key
+        merged_key = f"{base_club} ({category})" if category else base_club
+
+        # Append original teams
         merged_grouped.setdefault(merged_key, []).extend(teams)
 
+    # Sort teams inside each club
     merged_grouped = {k: sorted(v) for k, v in merged_grouped.items()}
     return merged_grouped
 
