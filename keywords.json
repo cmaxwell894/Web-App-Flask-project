@@ -11,12 +11,14 @@
     "Blades","Phantom","Predators","Sonics","Tiempo's","Vipers","Lasers","Phantoms","Wasps","Bees",
     "Tangerines","Stingers","Vespas","Sunday U13","Messi's","Neymar's","Ronaldo's","Iniesta's","Xavi's","Figo's","Maradona's","Cruyff's",
     "Pirates", "Gunners", "Hammers", "Pythons", "Dolphins", "YFC", "Magpies", "Bulldogs", "Scorpions", "Windmills", "Giants", "Raiders",
-    "Vikings"
+    "Vikings", "Vixens", "Whirwinds", "Kits", "Shields", "Swords", "Foxes", "Hawks", "Ospreys", "Roses", "Cheetahs", "Wild Horses", "Tawnys",
+    "Phoenixes", "All Stars", "Devils", "Cubs", "Raptors", "Woodpeckers", "Boys", "Rosso", "Thundercats", "Rojas", "Mavericks",
+    "Flames", "Knights"
   ],
   "mens_keywords": [
     "Seniors","1st","First","Mens","Reserves","Veterans","Vets","Development","Devs","res","Res",
     "A","B","C","D","Dev","Under 23","Senior","Conference","Premiership","Championship","Over",
-    "3rds","2nds","4 ths","Thirds","Seconds","Sundays","Sun","Legends", "II"
+    "3rds","2nds","4 ths","Thirds","Seconds","Sundays","Sun","Legends", "II", "Under 23s", "Masters", "Sunday"
   ],
   "ladies_keywords": ["Ladies","Girls","Belles","Lionesses","Women","Womens","ladies"],
   "color_keywords": [
