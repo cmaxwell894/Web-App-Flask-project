@@ -10,7 +10,9 @@ app = Flask(__name__)
 # =========================
 # Load keywords
 # =========================
-with open("keywords.json", "r") as f:
+
+keywords_file = r"C:\Users\ConnorMaxwell\Documents\Tests\TestData\keywords.json"
+with open(keywords_file, "r") as f:
     keywords_data = json.load(f)
 
 youth_keywords = keywords_data["youth_keywords"]
@@ -28,12 +30,14 @@ all_keywords = set(youth_keywords + mens_keywords + ladies_keywords + color_keyw
 # =========================
 def clean_club_name(name, abbreviation_map):
     for abbr, full in abbreviation_map.items():
-        name = re.sub(abbr, full, name, flags=re.IGNORECASE)
+        # Only replace standalone abbreviations, ignore if full word is already present
+        name = re.sub(r'\b' + re.escape(abbr) + r'\b', full, name, flags=re.IGNORECASE)
     name_norm = re.sub(r'\bF\.?C\.?\b', '', name, flags=re.IGNORECASE)
     name_norm = re.sub(r'\bAFC\b', '', name_norm, flags=re.IGNORECASE)
     name_norm = re.sub(r'[.,]$', '', name_norm)
     name_norm = re.sub(r'\s+', ' ', name_norm).strip()
     return name_norm
+
 
 # =========================
 # Base club name extraction
@@ -68,22 +72,26 @@ def normalize_club_name_for_merge(club_name):
     return club_name
 
 # =========================
-# Safe normalization (fix ATHLETICLETICLETIC)
+# Safe normalization to prevent repeated suffixes
 # =========================
 def safe_normalize_club_name(club_name):
-    match = re.match(r'^(.+?)(\s+(Junior|Youth|U\d+|1st|2nd|Rangers|Reserves|Development|Colts).*)?$', club_name, re.IGNORECASE)
+    match = re.match(
+        r'^(?P<main>.+?)(?:\s+(?P<suffix>(Junior|Youth|U\d+|1st|2nd|Reserves|Colts|Development|Rangers).*)?)?$',
+        club_name,
+        re.IGNORECASE
+    )
     if match:
-        main_club = match.group(1)
-        suffix = match.group(2) or ""
+        main_club = match.group('main').strip()
+        suffix = match.group('suffix') or ''
         main_club_norm = normalize_club_name_for_merge(main_club)
-        return f"{main_club_norm}{suffix}"
+        return f"{main_club_norm} {suffix}".strip()
     else:
         return normalize_club_name_for_merge(club_name)
 
 # =========================
-# Merge subteams (second pass)
+# Merge teams (all categories)
 # =========================
-def merge_youth_subteams(grouped_teams):
+def merge_teams(grouped_teams):
     merged_grouped = {}
     for key, teams in grouped_teams.items():
         if '(' in key:
@@ -94,9 +102,13 @@ def merge_youth_subteams(grouped_teams):
             club = key
             category = ""
 
-        base_club_match = re.match(r'^(.+?)(\s+(Junior|Youth|U\d+|1st|2nd|Rangers|Reserves|Development|Colts).*)?$', club, re.IGNORECASE)
-        if base_club_match:
-            merged_name = safe_normalize_club_name(base_club_match.group(1) + (base_club_match.group(2) or ""))
+        base_match = re.match(
+            r'^(.+?)(\s+(Junior|Youth|U\d+|1st|2nd|Rangers|Reserves|Development|Colts).*)?$',
+            club,
+            re.IGNORECASE
+        )
+        if base_match:
+            merged_name = safe_normalize_club_name(base_match.group(1) + (base_match.group(2) or ""))
         else:
             merged_name = safe_normalize_club_name(club)
 
@@ -145,6 +157,7 @@ def process_file(file_storage):
         original_team = team
         team_cleaned = clean_club_name(team, abbreviation_map)
 
+        # Determine category
         if age_pattern.search(team_cleaned) or re.search(r'\b(?:' + '|'.join(youth_keywords) + r')\b', team_cleaned):
             category = "Youth"
             club_name = get_base_club_name(team_cleaned, age_pattern, youth_keywords, all_keywords, club_suffixes)
@@ -166,12 +179,11 @@ def process_file(file_storage):
 
         display_club_name = f"{fc_prefix}{club_name}"
 
-        # Use safe normalization here
         norm_club_name = safe_normalize_club_name(display_club_name)
         key = f"{norm_club_name} ({category})"
         grouped_teams.setdefault(key, []).append(original_team)
 
-    grouped_teams = merge_youth_subteams(grouped_teams)
+    grouped_teams = merge_teams(grouped_teams)
 
     grouped_list = [[k, len(v), ", ".join(v)] for k, v in sorted(grouped_teams.items())]
     grouped_df = pd.DataFrame(grouped_list, columns=["Club (Category)", "Team Count", "Teams"])
